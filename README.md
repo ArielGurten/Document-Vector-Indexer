@@ -3,6 +3,7 @@
 ## Author
 
 Ariel Gurten
+---
 
 This project implements a **document vectorization and retrieval pipeline** using **Google Gemini embeddings** and **PostgreSQL with pgvector**.
 
