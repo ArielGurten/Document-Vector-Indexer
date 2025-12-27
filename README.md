@@ -1,6 +1,6 @@
 # Document Vector Indexer (Gemini + PostgreSQL)
 
-## Author
+## Author:
 
 Ariel Gurten
 ---
