@@ -13,7 +13,7 @@ The system:
 - Splits text into chunks using configurable strategies
 - Generates embeddings for each chunk using Google Gemini API
 - Stores chunks, vectors, and metadata in PostgreSQL
-- Designed to support similarity search and RAG-style pipelines
+- Designed as a foundation for semantic search and RAG-style pipelines
 
 ---
 
