@@ -1,7 +1,7 @@
 python-dotenv
-pymupdf
-python-docx
-sqlalchemy
+sqlalchemy>=2.0
+google-genai>=0.3
 psycopg[binary]
 pgvector
-google-genai
+pymupdf
+python-docx
