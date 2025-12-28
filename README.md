@@ -42,7 +42,7 @@ Document-Vector-Indexer/
 
 ### 1. Clone the repository
 ```bash
-git clone <YOUR_GITHUB_REPO_URL>
+git clone https://github.com/ArielGurten/Document-Vector-Indexer/
 cd Document-Vector-Indexer
 ```
 
