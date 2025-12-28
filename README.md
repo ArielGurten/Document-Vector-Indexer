@@ -103,7 +103,7 @@ POSTGRES_URL=postgresql+psycopg://user:password@localhost:5432/db_ex
 
 ---
 
-## Indexing Documents (Assignment - Part 2)
+## Indexing Documents
 
 ### Script
 ```
