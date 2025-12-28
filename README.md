@@ -1,18 +1,19 @@
 # Document Vector Indexer (Gemini + PostgreSQL)
 
-## Author:
-
+## Author
 Ariel Gurten
----
 
-This project implements a **document vectorization and retrieval pipeline** using **Google Gemini embeddings** and **PostgreSQL with pgvector**.
+## Overview
+
+This project implements a **document indexing and vectorization pipeline** using
+**Google Gemini embeddings** and **PostgreSQL with pgvector**.
 
 The system:
-- Extracts text from PDF/DOCX documents
-- Splits text into chunks using multiple strategies
-- Generates embeddings for each chunk using Gemini
-- Stores vectors and metadata in PostgreSQL
-- Supports similarity search and RAG-style question answering
+- Extracts clean text from PDF and DOCX documents
+- Splits text into chunks using configurable strategies
+- Generates embeddings for each chunk using Google Gemini API
+- Stores chunks, vectors, and metadata in PostgreSQL
+- Designed to support similarity search and RAG-style pipelines
 
 ---
 
@@ -20,9 +21,7 @@ The system:
 
 ```
 Document-Vector-Indexer/
-├── index_documents.py      # Part 2 – document ingestion & vector creation
-├── test.py                 # Part 4 – vector similarity search
-├── rag_query.py            # RAG-style retrieval + generation
+├── index_documents.py      
 ├── requirements.txt
 ├── README.md
 ├── .env                    # Environment variables (NOT committed)
@@ -67,20 +66,27 @@ pip install -r requirements.txt
 CREATE DATABASE db_ex;
 ```
 
-### 2. Enable pgvector
+### 2. Enable pgvector extension
 ```sql
 CREATE EXTENSION vector;
 ```
 
-### 3. Create the table
+> The script will automatically create the required table if it does not exist.
+
+---
+
+## Database Schema
+
+The script creates and uses the following table structure (as required):
+
 ```sql
 CREATE TABLE document_chunks (
   id SERIAL PRIMARY KEY,
   chunk_text TEXT NOT NULL,
   embedding VECTOR(768) NOT NULL,
   filename TEXT NOT NULL,
-  strategy_split TEXT NOT NULL,
-  at_created TIMESTAMPTZ DEFAULT NOW()
+  split_strategy TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
 );
 ```
 
@@ -91,29 +97,41 @@ CREATE TABLE document_chunks (
 Create a `.env` file in the project root:
 
 ```env
-GEMINI_API_KEY=your_gemini_api_key
-POSTGRES_URL=postgresql+psycopg://postgres:password@localhost:5432/db_ex
+GEMINI_API_KEY= your_gemini_api_key
+POSTGRES_URL=postgresql+psycopg://user:password@localhost:5432/db_ex
 ```
 
 ---
 
-## Part 2 – Indexing Documents
+## Indexing Documents (Assignment - Part 2)
 
 ### Script
 ```
 index_documents.py
 ```
 
-### Supported input
+### Supported Input Formats
 - PDF
 - DOCX
 
-### Chunking strategies
-- `fixed` – fixed-size chunks with overlap
-- `sentence` – sentence-based splitting
-- `paragraph` – paragraph-based splitting
+### Chunking Strategies
+- `fixed` - fixed-size chunks with overlap
+- `sentence` - sentence-based splitting
+- `paragraph` - paragraph-based splitting
 
-### Example usage
+### Command-Line Options
+
+```bash
+python index_documents.py <input_file> \
+  --strategy fixed|sentence|paragraph \
+  --chunk-size 1200 \
+  --overlap 200 \
+  --batch-size 32 \
+  --embedding-model gemini-embedding-001 \
+  --embedding-dim 768
+```
+
+### Example Usage
 
 ```bash
 python index_documents.py sample.pdf --strategy fixed --chunk-size 1200 --overlap 200
@@ -123,58 +141,23 @@ python index_documents.py sample.pdf --strategy fixed --chunk-size 1200 --overla
 python index_documents.py sample.docx --strategy sentence
 ```
 
-Each chunk is embedded using **Google Gemini** (`text-embedding-004`) and stored in PostgreSQL.
-
 ---
 
-## Part 4 – Vector Similarity Search
+## Embeddings
 
-### Script
-```
-test.py
-```
-
-### Run
-```bash
-python test.py
-```
-
-You will be prompted to enter a query.
-The script:
-1. Embeds the query using Gemini
-2. Searches the database using pgvector similarity (`<->`)
-3. Returns the most similar chunks
-
----
-
-## RAG – Retrieval Augmented Generation (Bonus)
-
-### Script
-```
-rag_query.py
-```
-
-### Run
-```bash
-python rag_query.py
-```
-
-### What it does
-1. Embeds the user question
-2. Retrieves the top-K relevant chunks from PostgreSQL
-3. Sends the chunks as **context** to Gemini
-4. Generates an answer **based only on retrieved content**
-
-This implements a full **RAG (Retrieval-Augmented Generation)** pipeline.
+- Embedding model: **gemini-embedding-001**
+- Embedding dimensionality: **768**
+- Embeddings are generated in batches for efficiency
+- Each chunk is embedded independently and stored with metadata
 
 ---
 
 ## Technologies Used
 
 - Python
+- Google Gemini API
 - PostgreSQL
 - pgvector
-- Google Gemini API
 - SQLAlchemy
 - PyMuPDF
 - python-docx
@@ -182,18 +165,8 @@ This implements a full **RAG (Retrieval-Augmented Generation)** pipeline.
 
 ---
 
-## Security Considerations
-
-- No secrets stored in source code
-- API keys managed via `.env`
-- Database credentials not hardcoded
-
----
-
 ## Notes
 
-- Embedding model: `text-embedding-004`
-- Generation model (RAG): `gemini-1.5-pro`
-- Vector dimension: 768
-
----
+- The system is modular and extensible
+- Designed for use in semantic search and RAG pipelines
+- Clean, deterministic chunking and embedding workflow
